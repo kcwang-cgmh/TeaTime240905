@@ -42,6 +42,12 @@ namespace TeaTime.Api.Controllers
         [HttpPost]
         public IActionResult AddStore([FromBody] Store newStore)
         {
+
+            var maxId = _context.Stores.Max(s => (long?)s.Id) ?? 0;
+
+
+            newStore.Id = maxId + 1;
+
             _context.Add(newStore);
             _context.SaveChanges();
 
