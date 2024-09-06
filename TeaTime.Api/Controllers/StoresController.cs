@@ -38,30 +38,14 @@ namespace TeaTime.Api.Controllers
             return Ok(store);
         }
 
-
-
+        // POST: api/Stores
         [HttpPost]
         public IActionResult AddStore([FromBody] Store newStore)
         {
-            
-
-            if (newStore == null)
-            {
-                return NotFound();
-            }
-
-            var maxId = _context.Stores.Any() ? _context.Stores.Max(s => s.Id) : 0;
-            var newId = maxId + 1;
-            newStore.Id = newId;
-
             _context.Add(newStore);
             _context.SaveChanges();
 
             return Ok();
         }
-
-   
-
-
     }
 }
