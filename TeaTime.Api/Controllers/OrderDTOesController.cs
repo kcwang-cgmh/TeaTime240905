@@ -14,10 +14,12 @@ namespace TeaTime.Api.Controllers
     public class OrderDTOesController : ControllerBase
     {
         private readonly TeaTimeContext _context;
+        private readonly ILogger<OrderDTOesController> _logger;
 
-        public OrderDTOesController(TeaTimeContext context)
+        public OrderDTOesController(TeaTimeContext context, ILogger<OrderDTOesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: api/OrderDTOes
