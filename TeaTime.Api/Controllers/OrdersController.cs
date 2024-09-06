@@ -16,7 +16,7 @@ namespace TeaTime.Api.Controllers
         }
         // GET: api/stores/{storeId}/orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public  ActionResult<IEnumerable<Order>> GetOrders()
         {
             var stores = _context.Stores;
 
@@ -39,8 +39,9 @@ namespace TeaTime.Api.Controllers
 
         // POST: api/stores/{storeId}/orders
         [HttpPost]
-        public IActionResult AddOrder([FromBody] Order newOrder)
+        public IActionResult AddOrder(long storeId,[FromBody] Order newOrder)
         {
+            newOrder.StoreId = storeId;
             _context.Add(newOrder);
             _context.SaveChanges();
 
