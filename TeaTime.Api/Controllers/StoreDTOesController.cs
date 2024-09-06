@@ -46,45 +46,55 @@ namespace TeaTime.Api.Controllers
             {
                 return NotFound();
             }
-
+            
             return Store2DTO(store);
         }
 
         // GET: api/stores/{storeId}/orders
         [HttpGet("{storeId}/orders")]
-        public async Task<ActionResult<OrderDTO>> GetOrderDTO(long storeId)
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersDTO(long storeId)
         {
             if (_context.Orders == null)
             {
                 return NotFound();
             }
-            var order = await _context.Orders.FindAsync(storeId);
-            if (order == null)
+            var store = await _context.Stores.FindAsync(storeId);
+            if (store == null)
             {
                 return NotFound();
             }
-            return Order2DTO(order);
+            var orders = await _context.Orders
+                .Where(o => o.StoreId == storeId)
+                .Select(x => Order2DTO(x))
+                .ToListAsync();
+            if (orders.Count == 0)
+            {
+                return NotFound();
+            } 
+            return Ok(orders);
+        }
+
+         //GET: api/stores/{storeId}/ orders /{id}
+        [HttpGet("{storeId}/ orders /{id}")]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrderDTO(long storeId,long id)
+        {
+            if (_context.Orders == null)
+            {
+                return NotFound();
+            }
+            var orders = await _context.Orders
+                .Where(o => o.StoreId == storeId && o.Id==id)
+                .Select(x => Order2DTO(x))
+                .ToListAsync();
+            if (orders.Count == 0)
+            {
+                return NotFound();
+            }
+            return Ok(orders);
 
         }
 
-        // GET: api/stores/{storeId}/ orders /{id}
-        //[HttpGet("{storeId}/ orders /{id}")]
-        //public async Task<ActionResult<OrderDTO>> GetOrderDTO(long storeId)
-        //{
-        //    if (_context.Orders == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var order = await _context.Orders.FindAsync(storeId);
-        //    if (order == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Order2DTO(order);
-
-        //}
-
-        // PUT: api/StoreDTOes/5
+        /*// PUT: api/StoreDTOes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutStoreDTO(long id, Store store)
@@ -113,7 +123,7 @@ namespace TeaTime.Api.Controllers
             }
 
             return NoContent();
-        }
+        }*/
 
         // POST: api/StoreDTOes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -159,7 +169,7 @@ namespace TeaTime.Api.Controllers
             return CreatedAtAction(nameof(GetStoreDTO),
                 new { id = order.Id }, Order2DTO(order));
         }
-        // DELETE: api/StoreDTOes/5
+        /*// DELETE: api/StoreDTOes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStoreDTO(long id)
         {
@@ -177,7 +187,7 @@ namespace TeaTime.Api.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
+        }*/
 
         private bool StoreDTOExists(long id)
         {
