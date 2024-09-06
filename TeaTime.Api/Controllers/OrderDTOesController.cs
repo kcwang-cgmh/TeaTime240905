@@ -164,7 +164,7 @@ namespace TeaTime.Api.Controllers
             var store = await _context.Stores.FindAsync(storeId);
             if (store is null)
             {
-                return BadRequest();
+                return BadRequest("沒有這個店家哦!");
             }
 
             var order = new Order
