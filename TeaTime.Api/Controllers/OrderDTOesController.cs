@@ -9,7 +9,7 @@ using TeaTime.Api.Models;
 
 namespace TeaTime.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/order")]
     [ApiController]
     public class OrderDTOesController : ControllerBase
     {
@@ -24,11 +24,11 @@ namespace TeaTime.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrderDTO()
         {
-          if (_context.OrderDTO == null)
+          if (_context.Orders == null)
           {
               return NotFound();
           }
-            return await _context.OrderDTO.ToListAsync();
+            return await _context.Orders.Select(x => Order2DTO(x)).ToListAsync();
         }
 
         /*// GET: api/OrderDTOes/5
@@ -184,7 +184,7 @@ namespace TeaTime.Api.Controllers
 
         private bool OrderDTOExists(long id)
         {
-            return (_context.OrderDTO?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Orders?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
         private static OrderDTO Order2DTO(Order order) =>

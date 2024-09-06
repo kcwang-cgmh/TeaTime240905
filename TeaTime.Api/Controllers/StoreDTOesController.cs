@@ -10,7 +10,7 @@ using static NuGet.Packaging.PackagingConstants;
 
 namespace TeaTime.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/stores")]
     [ApiController]
     public class StoreDTOesController : ControllerBase
     {
