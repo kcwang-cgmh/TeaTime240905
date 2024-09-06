@@ -1,30 +1,40 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TeaTime.Api.Models;
-
+﻿using Microsoft.AspNetCore.Mvc;
+using TeaTime.Api.DataAccess;
+using TeaTime.Api.DataAccess.DbEntity;
+using TeaTime.Api.Domain.Orders;
+using TeaTime.Api.Domain.OrdersForUser;
+using TeaTime.Api.Domain.Stores;
 namespace TeaTime.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/stores/{storeId}/orders")]
     [ApiController]
     public class OrdersController : ControllerBase
     {
         private readonly TeaTimeContext _context;
+        private readonly ILogger<OrdersController> _logger;
 
-        public OrdersController(TeaTimeContext context)
+        public OrdersController(TeaTimeContext context, ILogger<OrdersController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         //GET: api/stores/{storeId}/orders
-        [HttpGet("{storId}")]
-        public ActionResult GetoOrders(long storeId)
+        [HttpGet]
+        public ActionResult GetOrders(long storeId)
         {
-            var orders = _context.Orders.Find(storeId);
+            var results = _context.Orders.Where(o => o.StoreId == storeId).ToList();
 
-            if (orders is null)
+            var orders = new List<Order>();
+
+            foreach (var result in results)
             {
-                return NotFound();
+                orders.Add(new Order
+                {
+                    Id = result.Id,
+                    UserName = result.UserName,
+                    ItemName = result.ItemName
+                });
             }
 
             return Ok(orders);
@@ -32,26 +42,67 @@ namespace TeaTime.Api.Controllers
 
         //GET: api/stores/{storeId}/orders/{id}
         [HttpGet("{Id}")]
-        public ActionResult GetoOrdersId(long Id)
+        public ActionResult GetoOrder(long storeId, long id)
         {
-            var orders = _context.Orders.Find(Id);
-
-            if (orders is null)
+            var store = _context.Stores.Find(storeId);
+            if (store is null)
             {
+                _logger.LogWarning("商家代號 {storeId} 不存在", storeId);
                 return NotFound();
             }
 
-            return Ok(orders);
+
+            // 再檢查訂單是否存在且屬於該商家
+            var result = _context.Orders.Find(id);
+
+            if (result is null || result.StoreId != storeId)
+            {
+                _logger.LogWarning("訂單代號 {id} 不存在或不屬於商家", id);
+                return NotFound();
+            }
+
+            var order = new Order
+            {
+                Id = result.Id,
+                UserName = result.UserName,
+                ItemName = result.ItemName,
+                Price = 0 // TODO: 從商品資料表中取得價格
+            };
+
+            return Ok(order);
         }
 
         //POST: api/stores/{storeId}/orders
         [HttpPost]
-        public IActionResult GetActionResultPost([FromBody] Order newOrder)
+        public IActionResult AddordersId(long storeId, [FromBody] OrderForUser newOrder)
         {
-            _context.Add(newOrder);
+            // 先檢查商家是否存在
+            var store = _context.Stores.Find(storeId);
+            if (store is null)
+            {
+                _logger.LogWarning("商家代號 {storeId} 不存在，無法新增訂單", storeId);
+                return BadRequest("無法新增訂單，請與維護人員聯繫");
+            }
+
+            var entity = new OrderEntity
+            {
+                StoreId = storeId,
+                UserName = newOrder.UserName,
+                ItemName = newOrder.ItemName
+            };
+
+            _context.Orders.Add(entity);
             _context.SaveChanges();
 
-            return Ok();
+            var orderForReturn = new Order
+            {
+                Id = entity.Id,
+                UserName = entity.UserName,
+                ItemName = entity.ItemName,
+                Price = 0 // TODO: 從商品資料表中取得價格
+            };
+
+            return CreatedAtAction(nameof(GetOrders), new { storeId, id = entity.Id }, orderForReturn);
         }
     }
 }
