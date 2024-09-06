@@ -1,6 +1,6 @@
 ﻿namespace TeaTime.Api.Models
 {
-    public class Store
+    public class StoreDTO
     {
         public long Id { get; set; }
 
@@ -9,7 +9,5 @@
         public string PhoneNumber { get; set; } = string.Empty;
 
         public string MenuUrl { get; set; } = string.Empty;
-        public string? Secret { get; set; }
-
     }
 }
