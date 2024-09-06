@@ -20,7 +20,11 @@ namespace TeaTime.Api.Controllers
         public ActionResult<IEnumerable<Order>> GetOrder(long storeId)
         {
             var orders = _context.Orders.Where(o => o.StoreId == storeId).ToList();
-
+            var store = _context.Stores.Where(s => s.Id == storeId);
+            if (store is null)
+            {
+                return NotFound();
+            }
             if (orders is null)
             {
                 return NotFound();
@@ -53,6 +57,11 @@ namespace TeaTime.Api.Controllers
         [HttpPost("{storeId}/orders")]
         public IActionResult AddOrder(long storeId,[FromBody] Order newOrder)
         {
+            var store = _context.Stores.Where(s => s.Id == storeId);
+            if (store is null)
+            {
+                return NotFound();
+            }
             newOrder.StoreId = storeId;
             _context.Add(newOrder);
             _context.SaveChanges();
