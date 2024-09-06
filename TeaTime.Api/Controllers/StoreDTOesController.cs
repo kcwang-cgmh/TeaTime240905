@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeaTime.Api.Models;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace TeaTime.Api.Controllers
 {
@@ -49,17 +50,51 @@ namespace TeaTime.Api.Controllers
             return Store2DTO(store);
         }
 
+        // GET: api/stores/{storeId}/orders
+        [HttpGet("{storeId}/orders")]
+        public async Task<ActionResult<OrderDTO>> GetOrderDTO(long storeId)
+        {
+            if (_context.Orders == null)
+            {
+                return NotFound();
+            }
+            var order = await _context.Orders.FindAsync(storeId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return Order2DTO(order);
+
+        }
+
+        // GET: api/stores/{storeId}/ orders /{id}
+        //[HttpGet("{storeId}/ orders /{id}")]
+        //public async Task<ActionResult<OrderDTO>> GetOrderDTO(long storeId)
+        //{
+        //    if (_context.Orders == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var order = await _context.Orders.FindAsync(storeId);
+        //    if (order == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return Order2DTO(order);
+
+        //}
+
         // PUT: api/StoreDTOes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutStoreDTO(long id, StoreDTO storeDTO)
+        public async Task<IActionResult> PutStoreDTO(long id, Store store)
         {
-            if (id != storeDTO.Id)
+            if (id != store.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(storeDTO).State = EntityState.Modified;
+            _context.Entry(store).State = EntityState.Modified;
 
             try
             {
@@ -92,17 +127,38 @@ namespace TeaTime.Api.Controllers
                PhoneNumber = storeDTO.PhoneNumber,
                MenuUrl = storeDTO.MenuUrl
            };
-          if (_context.Stores == null)
-          {
-              return Problem("Entity set 'TeaTimeContext.StoreDTO'  is null.");
-          }
+
             _context.Stores.Add(store);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetStoreDTO),
-                new { id = store.Id }, store);
+                new { id = store.Id }, Store2DTO(store));
         }
 
+        // POST: api / stores /{storeId}/ orders
+        [HttpPost("{storeId}/orders")]
+        public async Task<ActionResult<OrderDTO>> PostOrderDTO(long storeId, OrderDTO orderDTO)
+        {
+            var store =  await _context.Stores.FindAsync(storeId);
+            if (store is null)
+            {
+                return BadRequest(); 
+            } 
+
+            var order = new Order
+            {
+                StoreId = storeId,
+                UserName = orderDTO.UserName,
+                ItemName = orderDTO.ItemName,
+                Price = orderDTO.Price
+            };
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetStoreDTO),
+                new { id = order.Id }, Order2DTO(order));
+        }
         // DELETE: api/StoreDTOes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStoreDTO(long id)
@@ -131,9 +187,20 @@ namespace TeaTime.Api.Controllers
         private static StoreDTO Store2DTO(Store store) =>
            new StoreDTO
            {
+               Id = store.Id,
                Name = store.Name,
                PhoneNumber = store.PhoneNumber,
                MenuUrl = store.MenuUrl
+           };
+
+        private static OrderDTO Order2DTO(Order order) =>
+           new OrderDTO
+           {
+               Id = order.Id,
+               StoreId = order.StoreId,
+               UserName = order.UserName,
+               ItemName = order.ItemName,
+               Price = order.Price
            };
     }
 }

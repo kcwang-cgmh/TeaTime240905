@@ -1,6 +1,6 @@
 ﻿namespace TeaTime.Api.Models
 {
-    public class OderDTO
+    public class OrderDTO
     {
         public long Id { get; set; }
         public long StoreId { get; set; }
