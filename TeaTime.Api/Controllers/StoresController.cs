@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TeaTime.Api.Models;
+using TeaTime.Api.DataAccess;
+using TeaTime.Api.DataAccess.DbEntity;
+using TeaTime.Api.Domain.Stores;
+using TeaTime.Api.Domain.StoresForUser;
 
 namespace TeaTime.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/stores")]
     [ApiController]
     public class StoresController : ControllerBase
     {
@@ -17,35 +20,70 @@ namespace TeaTime.Api.Controllers
 
         // GET: api/Stores
         [HttpGet]
-        public ActionResult<IEnumerable<Store>> GetStores()
+        public ActionResult<IEnumerable<StoreEntity>> GetStores()
         {
-            var stores = _context.Stores;
+            var results = _context.Stores.ToList();
+
+            var stores = new List<Store>();
+            foreach (var result in results)
+            {
+                stores.Add(new Store
+                {
+                    Id = result.Id,
+                    Name = result.Name,
+                    PhoneNumber = result.PhoneNumber,
+                    MenuUrl = result.MenuUrl
+                });
+            }
 
             return Ok(stores);
         }
 
         // GET: api/Stores/1
         [HttpGet("{id}")]
-        public ActionResult<Store> GetStore(long id)
+        public ActionResult<StoreEntity> GetStore(long id)
         {
-            var store = _context.Stores.Find(id);
+            var result = _context.Stores.Find(id);
 
-            if (store is null)
+            if (result == null)
             {
                 return NotFound();
             }
+
+            var store = new Store
+            {
+                Id = result.Id,
+                Name = result.Name,
+                PhoneNumber = result.PhoneNumber,
+                MenuUrl = result.MenuUrl
+            };
 
             return Ok(store);
         }
 
         // POST: api/Stores
         [HttpPost]
-        public IActionResult AddStore([FromBody] Store newStore)
-        {
-            _context.Add(newStore);
+        public IActionResult AddStore([FromBody] StoreForUser newStore)
+        { 
+            var entity = new StoreEntity
+            {
+                Name = newStore.Name,
+                PhoneNumber = newStore.PhoneNumber,
+                MenuUrl = newStore.MenuUrl
+            };
+
+            _context.Stores.Add(entity);
             _context.SaveChanges();
 
-            return Ok();
+            var storeForReturn = new Store
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                PhoneNumber = entity.PhoneNumber,
+                MenuUrl = entity.MenuUrl
+            };
+
+            return CreatedAtAction(nameof(GetStore), new { id = entity.Id }, storeForReturn);
         }
     }
 }

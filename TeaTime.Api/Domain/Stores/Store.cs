@@ -1,4 +1,4 @@
-﻿namespace TeaTime.Api.Models
+﻿namespace TeaTime.Api.Domain.Stores
 {
     public class Store
     {
