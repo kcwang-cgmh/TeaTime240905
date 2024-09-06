@@ -5,7 +5,7 @@ using TeaTime.Api.Models;
 
 namespace TeaTime.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/stores/[controller]")]
     [ApiController]
     public class OrdersController : ControllerBase
     {
@@ -14,9 +14,9 @@ namespace TeaTime.Api.Controllers
         {
             _context= context;
         }
-        //GET: api/stores/{storeId}/orders
+        //GET: {storeId}/orders
 
-        [HttpGet("api/stores/{storeId}/orders")]
+        [HttpGet("{storeId}/orders")]
         public ActionResult<IEnumerable<Order>> GetOrder(long storeId)
         {
             var orders = _context.Orders.Where(o => o.StoreId == storeId).ToList();
@@ -29,10 +29,15 @@ namespace TeaTime.Api.Controllers
             return Ok(orders);
         }
  
-        //GET: api/stores/{storeId}/orders/{id}
-        [HttpGet("api/stores/{storeId}/orders/{id}")]
+        //GET: {storeId}/orders/{id}
+        [HttpGet("{storeId}/orders/{id}")]
         public ActionResult<Order> GetOrders(long storeId, long id)
         {
+            var store = _context.Stores.Where(s => s.Id == storeId);
+            if(store is null)
+            {
+                return NotFound();
+            }
             var order = _context.Orders
                         .Where(o => o.StoreId == storeId && o.Id == id);
                         
@@ -44,8 +49,8 @@ namespace TeaTime.Api.Controllers
             return Ok(order);
         }
 
-        //POST: api/stores/{storeId}/orders
-        [HttpPost("api/stores/{storeId}/orders")]
+        //POST: {storeId}/orders
+        [HttpPost("{storeId}/orders")]
         public IActionResult AddOrder(long storeId,[FromBody] Order newOrder)
         {
             newOrder.StoreId = storeId;
