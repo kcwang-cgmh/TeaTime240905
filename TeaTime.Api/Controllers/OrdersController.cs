@@ -16,7 +16,7 @@ namespace TeaTime.Api.Controllers
         }
         // GET: api/stores/{storeId}/orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public  ActionResult<IEnumerable<Order>> GetOrders()
         {
             var stores = _context.Stores;
 
