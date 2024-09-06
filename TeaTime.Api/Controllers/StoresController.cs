@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TeaTime.Api.Models;
+using TeaTime.Api.Services;
 
 namespace TeaTime.Api.Controllers
 {
@@ -9,6 +10,7 @@ namespace TeaTime.Api.Controllers
     public class StoresController : ControllerBase
     {
         private readonly TeaTimeContext _context;
+        StoresService _service = new StoresService();
 
         public StoresController(TeaTimeContext context)
         {
@@ -19,7 +21,7 @@ namespace TeaTime.Api.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<Store>> GetStores()
         {
-            var stores = _context.Stores;
+            var stores = _service.GetStores(_context);
 
             return Ok(stores);
         }
@@ -28,7 +30,7 @@ namespace TeaTime.Api.Controllers
         [HttpGet("{id}")]
         public ActionResult<Store> GetStore(long id)
         {
-            var store = _context.Stores.Find(id);
+            var store = _service.GetStore(_context, id);
 
             if (store is null)
             {
@@ -42,10 +44,10 @@ namespace TeaTime.Api.Controllers
         [HttpPost]
         public IActionResult AddStore([FromBody] Store newStore)
         {
-            _context.Add(newStore);
-            _context.SaveChanges();
+            _service.AddStore(_context, newStore);
 
             return Ok();
         }
+
     }
 }
