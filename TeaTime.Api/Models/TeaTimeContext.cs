@@ -13,6 +13,8 @@ namespace TeaTime.Api.Models
 
         public DbSet<Order> Orders { get; set; } = null!;
 
+        //public DbSet<TeaTime.Api.Models.OrderDTO>? OrderDTO { get; set; }
+
         //public DbSet<TeaTime.Api.Models.StoreDTO>? StoreDTO { get; set; }
     }
 }
