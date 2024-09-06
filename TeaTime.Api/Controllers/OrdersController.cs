@@ -39,8 +39,9 @@ namespace TeaTime.Api.Controllers
 
         // POST: api/stores/{storeId}/orders
         [HttpPost]
-        public IActionResult AddOrder([FromBody] Order newOrder)
+        public IActionResult AddOrder(long storeId,[FromBody] Order newOrder)
         {
+            newOrder.StoreId = storeId;
             _context.Add(newOrder);
             _context.SaveChanges();
 
