@@ -10,6 +10,15 @@ namespace TeaTime.Api.Models
 
         public DbSet<Store> Stores { get; set; } = null!;
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Store>()
+                .HasKey(s => s.Id);
+            modelBuilder.Entity<Store>()
+                .Property(s => s.Id)
+                .ValueGeneratedOnAdd();
+        }
+
         public DbSet<Order> Orders { get; set; } = null!;
     }
 }
