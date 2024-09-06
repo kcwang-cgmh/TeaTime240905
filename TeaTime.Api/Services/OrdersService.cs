@@ -15,8 +15,10 @@ namespace TeaTime.Api.Services
                 return Enumerable.Empty<Order>();
             }
 
-            var orders = context.Orders.Where(order => order.StoreId == storeId).ToList();
-            
+            var orders = context.Orders
+                .Where(order => order.StoreId == storeId)
+                .ToList();
+
             return orders;
         }
 
@@ -29,7 +31,9 @@ namespace TeaTime.Api.Services
                 return null;
             }
 
-            var order = context.Orders.Where(order => order.StoreId == storeId && order.Id == orderId).FirstOrDefault();
+            var order = context.Orders
+                .Where(order => order.StoreId == storeId && order.Id == orderId)
+                .FirstOrDefault();
 
             return order;
         }
@@ -40,7 +44,7 @@ namespace TeaTime.Api.Services
 
             if (store != null)
             {
-                var orders = GetOrders(context, storeId);
+                var orders = context.Orders;
                 long biggest = 0;
 
                 foreach (var order in orders)
@@ -48,12 +52,13 @@ namespace TeaTime.Api.Services
                     biggest = order.Id > biggest ? order.Id : biggest;
                 }
 
+                newOrder.Id = biggest + 1;
                 newOrder.StoreId = storeId;
 
                 context.Add(newOrder);
                 context.SaveChanges();
             }
-            
+
         }
 
 
