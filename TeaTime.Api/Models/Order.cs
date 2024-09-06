@@ -1,4 +1,7 @@
-﻿namespace TeaTime.Api.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace TeaTime.Api.Models
 {
     public class Order
     {
