@@ -9,7 +9,7 @@ using TeaTime.Api.Models;
 
 namespace TeaTime.Api.Controllers
 {
-    [Route("api/order")]
+    [Route("api/store")]
     [ApiController]
     public class OrderDTOesController : ControllerBase
     {
