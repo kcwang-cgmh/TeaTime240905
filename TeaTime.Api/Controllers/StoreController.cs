@@ -12,11 +12,11 @@ namespace TeaTime.Api.Controllers
 {
     [Route("api/stores")]
     [ApiController]
-    public class StoreDTOesController : ControllerBase
+    public class StoreController : ControllerBase
     {
         private readonly TeaTimeContext _context;
 
-        public StoreDTOesController(TeaTimeContext context)
+        public StoreController(TeaTimeContext context)
         {
             _context = context;
         }
