@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeaTime.Api.Models;
-
+using TeaTime.Api.Models.Order;
 namespace TeaTime.Api.Services
 {
     public class OrderService

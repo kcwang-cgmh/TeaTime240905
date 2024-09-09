@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeaTime.Api.Models;
+using TeaTime.Api.Models.Store;
 using static NuGet.Packaging.PackagingConstants;
 
 namespace TeaTime.Api.Controllers

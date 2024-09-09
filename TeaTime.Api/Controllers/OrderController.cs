@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeaTime.Api.Models;
+using TeaTime.Api.Models.Order;
 using TeaTime.Api.Services;
 
 namespace TeaTime.Api.Controllers
@@ -29,7 +30,7 @@ namespace TeaTime.Api.Controllers
             var orders = await _orderService.GetOrders(storeId);
             if (orders == null)
             {
-                return BadRequest("查無此筆資料");
+                return NotFound("查無此筆資料");
             }
             return Ok(orders);
         }
@@ -41,7 +42,7 @@ namespace TeaTime.Api.Controllers
             var order = await _orderService.GetOrderWithId(storeId,id);
             if (order == null)
             {
-                return BadRequest("查無此筆資料");
+                return NotFound("查無此筆資料");
             }
             
             return Ok(order);
