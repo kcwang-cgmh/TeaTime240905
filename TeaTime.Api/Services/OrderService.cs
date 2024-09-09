@@ -6,7 +6,7 @@ using TeaTime.Api.Domains.Order;
 
 namespace TeaTime.Api.Services
 {
-    public class OrderService
+    public class OrderService:IOrderServicecs
     {
         private readonly TeaTimeContext _context;
         private readonly ILogger<OrderService> _logger;

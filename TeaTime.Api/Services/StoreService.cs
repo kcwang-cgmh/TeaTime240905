@@ -6,7 +6,7 @@ using TeaTime.Api.Domains.Store;
 
 namespace TeaTime.Api.Services
 {
-    public class StoreService
+    public class StoreService:IStoreService
     {
         private readonly TeaTimeContext _context;
         private readonly ILogger<StoreService> _logger;
