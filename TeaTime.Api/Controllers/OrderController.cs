@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TeaTime.Api.Models;
-using TeaTime.Api.Models.Order;
+using TeaTime.Api.DataAccess;
+using TeaTime.Api.Domains.Order; // 與業務邏輯部分連接
 using TeaTime.Api.Services;
 
 namespace TeaTime.Api.Controllers
