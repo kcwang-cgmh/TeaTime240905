@@ -16,18 +16,20 @@ namespace TeaTime.Api.Controllers
     [ApiController]
     public class StoreController : ControllerBase
     {
-        private readonly StoreService _StoreService;
+        private readonly IOrderServicecs _orderService;
+        private readonly IStoreService _storeService;
 
-        public StoreController(TeaTimeContext context,ILogger<StoreService> logger)
+        public StoreController(IOrderServicecs orderService,IStoreService storeService)
         {
-            _StoreService = new StoreService(context, logger);
+            _orderService = orderService;
+            _storeService = storeService;
         }
 
         // GET: api/Stores
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Store>>> GetStoreDTO()
         {
-            var stores = await _StoreService.GetStores();
+            var stores = await _storeService.GetStores();
             if (stores == null)
             {
                 return NotFound("查無此筆資料");
@@ -39,7 +41,7 @@ namespace TeaTime.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Store>> GetStoreDTO(long id)
         {
-            var store = await _StoreService.GetStoreDTO(id);
+            var store = await _storeService.GetStoreDTO(id);
             if (store == null)
           {
               return NotFound("查無此筆資料");
@@ -54,7 +56,7 @@ namespace TeaTime.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Store>> PostStoreDTO(StoreDTO storeDTO)
         {
-            var result = await _StoreService.PostStoreDTO(storeDTO);
+            var result = await _storeService.PostStoreDTO(storeDTO);
             // 將storeDTO對應store
             return Ok(result);
         }

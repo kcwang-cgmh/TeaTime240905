@@ -15,11 +15,13 @@ namespace TeaTime.Api.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly OrderService _orderService;
+        private readonly IStoreService _storeService;
+        private readonly IOrderServicecs _orderService;
 
-        public OrderController(TeaTimeContext context, ILogger<OrderService> logger)
+        public OrderController(IStoreService storeService,IOrderServicecs orderService)
         {
-            _orderService = new OrderService(context, logger);
+            _storeService = storeService;
+            _orderService = orderService;
         }
 
         
