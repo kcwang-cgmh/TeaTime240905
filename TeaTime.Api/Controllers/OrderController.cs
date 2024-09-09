@@ -10,7 +10,7 @@ using TeaTime.Api.Services;
 
 namespace TeaTime.Api.Controllers
 {
-    [Route("api/stores")]
+    [Route("api/stores/{storeId}/orders")]
     [ApiController]
     public class OrderController : ControllerBase
     {
@@ -21,48 +21,35 @@ namespace TeaTime.Api.Controllers
             _orderService = new OrderService(context, logger);
         }
 
-
-        // GET: api/order
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrderDTO()
-        {
-            var order = await _orderService.GetOrder();
-            if (order == null)
-          {
-              return NotFound("查無此筆資料");
-          }
-            return Ok(order);
-        }
-
         
         // GET: api/stores/{storeId}/orders
-        [HttpGet("{storeId}/orders")]
-        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersDTO(long storeId)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders(long storeId)
         {
             var orders = await _orderService.GetOrders(storeId);
             if (orders == null)
             {
-                return NotFound("查無此筆資料");
+                return BadRequest("查無此筆資料");
             }
             return Ok(orders);
         }
 
         //GET: api/stores/{storeId}/ orders /{id}
-        [HttpGet("{storeId}/orders/{id}")]
-        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrderDTO(long storeId, long id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrderWithId(long storeId, long id)
         {
             var order = await _orderService.GetOrderWithId(storeId,id);
             if (order == null)
             {
-                return NotFound("查無此筆資料");
+                return BadRequest("查無此筆資料");
             }
             
             return Ok(order);
 
         }
         // POST: api / stores /{storeId}/ orders
-        [HttpPost("{storeId}/orders")]
-        public async Task<ActionResult<OrderDTO>> PostOrderDTO(long storeId, OrderDTO orderDTO)
+        [HttpPost]
+        public async Task<ActionResult<OrderDTO>> PostOrder(long storeId, OrderDTO orderDTO)
         {
             var store = await _orderService.PostOrder(storeId, orderDTO);
             if (store is null)
