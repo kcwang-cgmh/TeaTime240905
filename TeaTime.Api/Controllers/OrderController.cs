@@ -6,31 +6,32 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeaTime.Api.Models;
+using TeaTime.Api.Services;
 
 namespace TeaTime.Api.Controllers
 {
-    [Route("api/order")]
+    [Route("api/stores")]
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly TeaTimeContext _context;
-        private readonly ILogger<OrderController> _logger;
+        private readonly OrderService _orderService;
 
-        public OrderController(TeaTimeContext context, ILogger<OrderController> logger)
+        public OrderController(TeaTimeContext context, ILogger<OrderService> logger)
         {
-            _context = context;
-            _logger = logger;
+            _orderService = new OrderService(context, logger);
         }
 
-        // GET: api/OrderDTOes
+
+        // GET: api/order
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrderDTO()
         {
-          if (_context.Orders == null)
+            var order = await _orderService.GetOrder();
+            if (order == null)
           {
-              return NotFound();
+              return NotFound("查無此筆資料");
           }
-            return await _context.Orders.Select(x => Order2DTO(x)).ToListAsync();
+            return Ok(order);
         }
 
         
@@ -38,22 +39,10 @@ namespace TeaTime.Api.Controllers
         [HttpGet("{storeId}/orders")]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersDTO(long storeId)
         {
-            if (_context.Orders == null)
+            var orders = await _orderService.GetOrders(storeId);
+            if (orders == null)
             {
-                return NotFound();
-            }
-            var store = await _context.Stores.FindAsync(storeId);
-            if (store == null)
-            {
-                return NotFound();
-            }
-            var orders = await _context.Orders
-                .Where(o => o.StoreId == storeId)
-                .Select(x => Order2DTO(x))
-                .ToListAsync();
-            if (orders.Count == 0)
-            {
-                return NotFound();
+                return NotFound("查無此筆資料");
             }
             return Ok(orders);
         }
@@ -62,59 +51,27 @@ namespace TeaTime.Api.Controllers
         [HttpGet("{storeId}/orders/{id}")]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrderDTO(long storeId, long id)
         {
-            if (_context.Orders == null)
+            var order = await _orderService.GetOrderWithId(storeId,id);
+            if (order == null)
             {
-                return NotFound();
+                return NotFound("查無此筆資料");
             }
-            var orders = await _context.Orders
-                .Where(o => o.StoreId == storeId && o.Id == id)
-                .Select(x => Order2DTO(x))
-                .ToListAsync();
-            if (orders.Count == 0)
-            {
-                return NotFound();
-            }
-            return Ok(orders);
+            
+            return Ok(order);
 
         }
         // POST: api / stores /{storeId}/ orders
         [HttpPost("{storeId}/orders")]
         public async Task<ActionResult<OrderDTO>> PostOrderDTO(long storeId, OrderDTO orderDTO)
         {
-            var store = await _context.Stores.FindAsync(storeId);
+            var store = await _orderService.PostOrder(storeId, orderDTO);
             if (store is null)
             {
-                return BadRequest();
+                return BadRequest("送出訂單失敗");
             }
 
-            var order = new Order
-            {
-                StoreId = storeId,
-                UserName = orderDTO.UserName,
-                ItemName = orderDTO.ItemName,
-                Price = orderDTO.Price
-            };
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetOrderDTO),
-                new { id = order.Id }, Order2DTO(order));
+            return Ok();
         }
 
-        private bool OrderDTOExists(long id)
-        {
-            return (_context.Orders?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
-
-        private static OrderDTO Order2DTO(Order order) =>
-           new OrderDTO
-           {
-               Id = order.Id,
-               StoreId = order.StoreId,
-               UserName = order.UserName,
-               ItemName = order.ItemName,
-               Price = order.Price
-           };
     }
 }
