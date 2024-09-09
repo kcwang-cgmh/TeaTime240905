@@ -4,7 +4,7 @@ using TeaTime.Api.Domains.Order;
 
 namespace TeaTime.Api.Services
 {
-    public interface IOrderServicecs
+    public interface IOrderService
     {
         Task<IEnumerable<Order>> GetOrder();
         Task<IEnumerable<Order>> GetOrders(long storeId);
