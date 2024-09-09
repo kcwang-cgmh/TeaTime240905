@@ -2,7 +2,7 @@
 {
     public class StoreEntity
     {
-        // 數據層的實體，對應於數據庫中的表結構
+        // 數據層的實體，對應於數據庫中的表
         public long Id { get; set; }
 
         public string Name { get; set; } = string.Empty;

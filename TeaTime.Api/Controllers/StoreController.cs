@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TeaTime.Api.DataAccess;
 using TeaTime.Api.Domains.Store;
+using TeaTime.Api.Services;
 using static NuGet.Packaging.PackagingConstants;
 
 namespace TeaTime.Api.Controllers
@@ -15,125 +16,47 @@ namespace TeaTime.Api.Controllers
     [ApiController]
     public class StoreController : ControllerBase
     {
-        private readonly TeaTimeContext _context;
+        private readonly StoreService _StoreService;
 
-        public StoreController(TeaTimeContext context)
+        public StoreController(TeaTimeContext context,ILogger<StoreService> logger)
         {
-            _context = context;
+            _StoreService = new StoreService(context, logger);
         }
 
-        // GET: api/StoreDTOes
+        // GET: api/Stores
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<StoreDTO>>> GetStoreDTO()
+        public async Task<ActionResult<IEnumerable<Store>>> GetStoreDTO()
         {
-          if (_context.Stores == null)
-          {
-              return NotFound();
-          }
-            return await _context.Stores.Select(x => Store2DTO(x)).ToListAsync();
+            var stores = await _StoreService.GetStores();
+            if (stores == null)
+            {
+                return NotFound("查無此筆資料");
+            }
+            return Ok(stores);
         }
 
-        // GET: api/StoreDTOes/5
+        // GET: api/Stores/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<StoreDTO>> GetStoreDTO(long id)
+        public async Task<ActionResult<Store>> GetStoreDTO(long id)
         {
-          if (_context.Stores == null)
-          {
-              return NotFound();
-          }
-            var store = await _context.Stores.FindAsync(id);
-
+            var store = await _StoreService.GetStoreDTO(id);
             if (store == null)
-            {
-                return NotFound();
-            }
-            
-            return Store2DTO(store);
+          {
+              return NotFound("查無此筆資料");
+          }
+            return store;
         }
 
-        /*// PUT: api/StoreDTOes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutStoreDTO(long id, Store store)
-        {
-            if (id != store.Id)
-            {
-                return BadRequest();
-            }
+       
 
-            _context.Entry(store).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!StoreDTOExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }*/
-
-        // POST: api/StoreDTOes
+        // POST: api/Stores
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<StoreDTO>> PostStoreDTO(StoreDTO storeDTO)
+        public async Task<ActionResult<Store>> PostStoreDTO(StoreDTO storeDTO)
         {
+            var result = await _StoreService.PostStoreDTO(storeDTO);
             // 將storeDTO對應store
-           var store = new Store 
-           { 
-               Name = storeDTO.Name,
-               PhoneNumber = storeDTO.PhoneNumber,
-               MenuUrl = storeDTO.MenuUrl
-           };
-
-            _context.Stores.Add(store);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetStoreDTO),
-                new { id = store.Id }, Store2DTO(store));
+            return Ok(result);
         }
-
-        /*// DELETE: api/StoreDTOes/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStoreDTO(long id)
-        {
-            if (_context.Stores == null)
-            {
-                return NotFound();
-            }
-            var storeDTO = await _context.Stores.FindAsync(id);
-            if (storeDTO == null)
-            {
-                return NotFound();
-            }
-
-            _context.Stores.Remove(storeDTO);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }*/
-
-        private bool StoreDTOExists(long id)
-        {
-            return (_context.Stores?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
-
-        private static StoreDTO Store2DTO(Store store) =>
-           new StoreDTO
-           {
-               Id = store.Id,
-               Name = store.Name,
-               PhoneNumber = store.PhoneNumber,
-               MenuUrl = store.MenuUrl
-           };
     }
 }

@@ -52,13 +52,13 @@ namespace TeaTime.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<OrderDTO>> PostOrder(long storeId, OrderDTO orderDTO)
         {
-            var store = await _orderService.PostOrder(storeId, orderDTO);
-            if (store is null)
+            var order = await _orderService.PostOrder(storeId, orderDTO);
+            if (order is null)
             {
                 return BadRequest("送出訂單失敗");
             }
 
-            return Ok();
+            return Ok(order);
         }
 
     }
