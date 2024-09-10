@@ -2,75 +2,55 @@
 using Microsoft.EntityFrameworkCore;
 using TeaTime.Api.DataAccess;
 using TeaTime.Api.DataAccess.DBEntities;
+using TeaTime.Api.DataAccess.Repository;
 using TeaTime.Api.Domains.Order;
 
 namespace TeaTime.Api.Services
 {
-    public class OrderService:IOrderService
+    public class OrderService:IOrdersService
     {
-        private readonly TeaTimeContext _context;
         private readonly ILogger<OrderService> _logger;
+        private readonly IOrdersRepo _orderRepo;
 
-        public OrderService(TeaTimeContext context, ILogger<OrderService> logger) 
+        public OrderService( ILogger<OrderService> logger, IOrdersRepo orderRepo) 
         {
-            _context = context; // 注入資料庫的表以查詢
             _logger = logger;
-        }
-
-        // GET: api/order
-        public async Task<IEnumerable<Order>> GetOrder()
-        {
-            if (_context.Orders == null)
-            {
-                _logger.LogWarning("目前沒有任何訂單");
-                return Enumerable.Empty<Order>();
-            }
-            return await _context.Orders.Select(x => Entity2Order(x)).ToListAsync();
+            _orderRepo = orderRepo;
         }
 
         // GET: api/stores/{storeId}/orders
-        public async Task<IEnumerable<Order>> GetOrders(long storeId)
+        public async Task<IEnumerable<Order?>?> GetOrders(long storeId)
         {
-            if (_context.Orders == null)
+            if (_orderRepo.HaveOrders() == false)
             {
                 _logger.LogWarning("目前沒有任何訂單");
-                return Enumerable.Empty<Order>();
+                return null;
             }
-            var store = await _context.Stores.FindAsync(storeId);
-            if (store == null)
+            var orders = await _orderRepo.GetOrders(storeId);
+            if (orders == null)
             {
                 _logger.LogWarning("不存在此商家代號 {storeId} ", storeId);
-                return Enumerable.Empty<Order>();
+                return null;
             }
-            var orders = await _context.Orders
-                .Where(o => o.StoreId == storeId)
-                .Select(x => Entity2Order(x))
-                .ToListAsync();
-            if (orders.Count == 0)
+            if (!orders.Any())
             {
                 _logger.LogWarning("商家代號 {storeId} 沒有存在任何訂單", storeId);
-                return orders;
             }
             return orders;
-
         }
 
         //GET: api/stores/{storeId}/ orders /{id}
-        public async Task<IEnumerable<Order>> GetOrderWithId(long storeId, long id)
+        public async Task<IEnumerable<Order?>> GetStoreOrder(long storeId, long id)
         {
-            if (_context.Orders == null)
+            if (_orderRepo.HaveOrders() == false)
             {
                 _logger.LogWarning("目前沒有任何訂單");
                 return Enumerable.Empty<Order>();
             }
-            var orders = await _context.Orders
-                .Where(o => o.StoreId == storeId && o.Id == id)
-                .Select(x => Entity2Order(x))
-                .ToListAsync();
-            if (orders.Count == 0)
+            var orders = await _orderRepo.GetStoreOrder(storeId, id);
+            if (!orders.Any())
             {
                 _logger.LogWarning("商家代號 {storeId} 沒有存在任何訂單", storeId);
-                return orders;
             }
             return orders;
 
@@ -78,38 +58,14 @@ namespace TeaTime.Api.Services
         // POST: api / stores /{storeId}/ orders
         public async Task<Order?> PostOrder(long storeId, OrderDTO orderDTO)
         {
-            var store = await _context.Stores.FindAsync(storeId);
-            if (store is null)
+            var order = await _orderRepo.PostOrder(storeId, orderDTO);
+            if (order is null)
             {
-                _logger.LogWarning("商家代號 {storeId} 沒有存在任何訂單", storeId);
+                _logger.LogWarning("商家代號 {storeId} 不存在", storeId);
                 return null;
             }
-
-            var order = new OrderEntity
-            {
-                StoreId = storeId,
-                UserName = orderDTO.UserName,
-                ItemName = orderDTO.ItemName,
-            };
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            return new Order
-            {
-                UserName = order.UserName,
-                ItemName = order.ItemName,
-                Price = 0
-            };
+            return order;
         }
 
-        private static Order Entity2Order(OrderEntity order) =>
-           new Order
-           {
-               Id = order.Id,
-               UserName = order.UserName,
-               ItemName = order.ItemName,
-               Price = 0
-           };
     }
 }

@@ -2,41 +2,42 @@
 using Microsoft.EntityFrameworkCore;
 using TeaTime.Api.DataAccess;
 using TeaTime.Api.DataAccess.DBEntities;
+using TeaTime.Api.DataAccess.Repository;
 using TeaTime.Api.Domains.Store;
 
 namespace TeaTime.Api.Services
 {
-    public class StoreService:IStoreService
+    public class StoreService:IStoresService
     {
-        private readonly TeaTimeContext _context;
         private readonly ILogger<StoreService> _logger;
+        private readonly IStoresRepo _storeRepo;
 
-        public StoreService(TeaTimeContext context, ILogger<StoreService> logger)
+        public StoreService(ILogger<StoreService> logger,IStoresRepo storeRepo)
         {
-            _context = context;
             _logger = logger;
+            _storeRepo = storeRepo;
         }
         // GET: api/Stores
         public async Task<IEnumerable<Store>> GetStores()
         {
-            if (_context.Stores == null)
+            if (_storeRepo.IsStoreExist() == false)
             {
                 _logger.LogWarning("目前沒有任何店家");
                 return Enumerable.Empty<Store>();
             }
-            return await _context.Stores.Select(x => Entity2Store(x)).ToListAsync();
+            return await _storeRepo.GetStores();
         }
 
         // GET: api/Stores/5
         [HttpGet("{id}")]
-        public async Task<Store?> GetStoreDTO(long id)
+        public async Task<Store?> GetStore(long id)
         {
-            if (_context.Stores == null)
+            if (_storeRepo.IsStoreExist() == false)
             {
                 _logger.LogWarning("目前沒有任何店家");
                 return null;
             }
-            var store = await _context.Stores.FindAsync(id);
+            var store = await _storeRepo.GetStore(id);
 
             if (store == null)
             {
@@ -44,43 +45,17 @@ namespace TeaTime.Api.Services
                 return null;
             }
 
-            return Entity2Store(store);
+            return store;
         }
-
-
 
         // POST: api/Stores
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<Store?> PostStoreDTO(StoreDTO storeDTO)
+        public async Task<Store?> PostStore(StoreDTO storeDTO)
         {
-            var store = new StoreEntity
-            {
-                Name = storeDTO.Name,
-                PhoneNumber = storeDTO.PhoneNumber,
-                MenuUrl = storeDTO.MenuUrl
-            };
-
-            _context.Stores.Add(store);
-            await _context.SaveChangesAsync();
-
-            return new Store
-            {
-                Name = store.Name,
-                PhoneNumber = store.PhoneNumber,
-                MenuUrl = store.MenuUrl
-            };
+            return await _storeRepo.PostStore(storeDTO);
         }
 
-
-        private static Store Entity2Store(StoreEntity store) =>
-           new Store
-           {
-               Id = store.Id,
-               Name = store.Name,
-               PhoneNumber = store.PhoneNumber,
-               MenuUrl = store.MenuUrl
-           };
 
     }
 }

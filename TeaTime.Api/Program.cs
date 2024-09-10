@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TeaTime.Api.DataAccess;
+using TeaTime.Api.DataAccess.Repository;
 using TeaTime.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,8 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<TeaTimeContext>(opt => opt.UseInMemoryDatabase("TeaTimeDb"));
 
-builder.Services.AddScoped<IStoreService, StoreService>();
-builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IStoresService, StoreService>();
+builder.Services.AddScoped<IOrdersService, OrderService>();
+
+builder.Services.AddScoped<IStoresRepo,InMemStoreRepo >();
+builder.Services.AddScoped<IOrdersRepo, InMemOrderRepo>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

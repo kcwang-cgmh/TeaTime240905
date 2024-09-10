@@ -15,10 +15,10 @@ namespace TeaTime.Api.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly IStoreService _storeService;
-        private readonly IOrderService _orderService;
+        private readonly IStoresService _storeService;
+        private readonly IOrdersService _orderService;
 
-        public OrderController(IStoreService storeService,IOrderService orderService)
+        public OrderController(IStoresService storeService,IOrdersService orderService)
         {
             _storeService = storeService;
             _orderService = orderService;
@@ -41,7 +41,7 @@ namespace TeaTime.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrderWithId(long storeId, long id)
         {
-            var order = await _orderService.GetOrderWithId(storeId,id);
+            var order = await _orderService.GetStoreOrder(storeId,id);
             if (order == null)
             {
                 return NotFound("查無此筆資料");

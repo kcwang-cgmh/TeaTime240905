@@ -16,10 +16,10 @@ namespace TeaTime.Api.Controllers
     [ApiController]
     public class StoreController : ControllerBase
     {
-        private readonly IOrderService _orderService;
-        private readonly IStoreService _storeService;
+        private readonly IOrdersService _orderService;
+        private readonly IStoresService _storeService;
 
-        public StoreController(IOrderService orderService,IStoreService storeService)
+        public StoreController(IOrdersService orderService,IStoresService storeService)
         {
             _orderService = orderService;
             _storeService = storeService;
@@ -27,26 +27,21 @@ namespace TeaTime.Api.Controllers
 
         // GET: api/Stores
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Store>>> GetStoreDTO()
+        public async Task<ActionResult<IEnumerable<Store>>> GetStores()
         {
             var stores = await _storeService.GetStores();
-            if (stores == null)
-            {
-                return NotFound("查無此筆資料");
-            }
             return Ok(stores);
         }
 
         // GET: api/Stores/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Store>> GetStoreDTO(long id)
+        public async Task<ActionResult<Store>> GetStore(long id)
         {
-            var store = await _storeService.GetStoreDTO(id);
-            if (store == null)
-          {
-              return NotFound("查無此筆資料");
-          }
-            return store;
+            var store = await _storeService.GetStore(id);
+            if (store == null) { 
+                return NotFound();
+            }
+            return Ok(store);
         }
 
        
@@ -56,8 +51,7 @@ namespace TeaTime.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Store>> PostStoreDTO(StoreDTO storeDTO)
         {
-            var result = await _storeService.PostStoreDTO(storeDTO);
-            // 將storeDTO對應store
+            var result = await _storeService.PostStore(storeDTO);
             return Ok(result);
         }
     }
