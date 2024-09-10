@@ -1,7 +1,8 @@
-﻿namespace TeaTime.Api.Models
+﻿namespace TeaTime.Api.DataAccess.DBEntities
 {
-    public class StoreDTO
+    public class StoreEntity
     {
+        // 數據層的實體，對應於數據庫中的表
         public long Id { get; set; }
 
         public string Name { get; set; } = string.Empty;
