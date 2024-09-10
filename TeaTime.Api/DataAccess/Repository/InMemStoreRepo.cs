@@ -59,13 +59,15 @@ namespace TeaTime.Api.DataAccess.Repository
             return true;
         }
 
-        private static Store Entity2Store(StoreEntity store) =>
-           new Store
-           {
-               Id = store.Id,
-               Name = store.Name,
-               PhoneNumber = store.PhoneNumber,
-               MenuUrl = store.MenuUrl
-           };
+        private static Store Entity2Store(StoreEntity store)
+        {
+            return new Store
+            {
+                Id = store.Id,
+                Name = store.Name,
+                PhoneNumber = store.PhoneNumber,
+                MenuUrl = store.MenuUrl
+            };
+        }
     }
 }

@@ -69,13 +69,15 @@ namespace TeaTime.Api.DataAccess.Repository
             };
         }
 
-        private static Order Entity2Order(OrderEntity order) =>
-           new Order
-           {
-               Id = order.Id,
-               UserName = order.UserName,
-               ItemName = order.ItemName,
-               Price = 0
-           };
+        private static Order Entity2Order(OrderEntity order)
+        {
+            return new Order
+            {
+                Id = order.Id,
+                UserName = order.UserName,
+                ItemName = order.ItemName,
+                Price = 0
+            };
+        }
     }
 }
