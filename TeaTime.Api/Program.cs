@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using TeaTime.Api.DataAccess.Repositories;
-using TeaTime.Api.Models;
 using TeaTime.Api.Services;
 
 internal class Program
@@ -13,8 +12,10 @@ internal class Program
         builder.Services.AddHttpClient();
 
         builder.Services.AddScoped<IStoresService, StoresService>();
+        builder.Services.AddScoped<IOrdersService, OrdersService>();
 
         builder.Services.AddScoped<IStoresRepository, ApiStoresRepository>();
+        builder.Services.AddScoped<IOrdersRepository, ApiOrdersRepository>();
 
 
 

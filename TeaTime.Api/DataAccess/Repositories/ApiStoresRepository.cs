@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text;
 using TeaTime.Api.Domain.Stores;
+using TeaTime.Api.Domain.Orders;
 
 namespace TeaTime.Api.DataAccess.Repositories
 {
