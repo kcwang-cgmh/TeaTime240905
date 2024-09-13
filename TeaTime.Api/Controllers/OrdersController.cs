@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TeaTime.Api.Models;
+using TeaTime.Api.Domain.Orders;
+using TeaTime.Api.Domain.Stores;
+using TeaTime.Api.Services;
 
 namespace TeaTime.Api.Controllers
 {
@@ -9,25 +11,25 @@ namespace TeaTime.Api.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly TeaTimeContext _context;
-        public OrdersController(TeaTimeContext context)
+        private readonly IOrdersService _ordersService;
+        public OrdersController(IOrdersService ordersService)
         {
-            _context = context;
+            _ordersService = ordersService;
         }
         // GET: api/stores/{storeId}/orders
         [HttpGet]
-        public  ActionResult<IEnumerable<Order>> GetOrders()
+        public ActionResult<IEnumerable<Order>> GetOrders(long storeId)
         {
-            var stores = _context.Stores;
+            var orders = _ordersService.GetOrders(storeId);
 
-            return Ok(stores);
+            return Ok(orders);
         }
 
         // GET: api/stores/{storeId}/orders/{id}
         [HttpGet("{id}")]
-        public ActionResult<Order> GetOrder(long id)
+        public ActionResult<Order> GetOrder(long storeId, long id)
         {
-            var order = _context.Stores.Find(id);
+            var order = _ordersService.GetOrder(storeId, id);
 
             if (order is null)
             {
@@ -39,13 +41,16 @@ namespace TeaTime.Api.Controllers
 
         // POST: api/stores/{storeId}/orders
         [HttpPost]
-        public IActionResult AddOrder(long storeId,[FromBody] Order newOrder)
+        public IActionResult AddOrder(long storeId, [FromBody] OrderForCreation newOrder)
         {
-            newOrder.StoreId = storeId;
-            _context.Add(newOrder);
-            _context.SaveChanges();
+            var orderForReturn = _ordersService.AddOrderAndReturn(storeId, newOrder);
 
-            return Ok();
+            if (orderForReturn is null)
+            {
+                return BadRequest("無法新增訂單，請與維護人員聯繫");
+            }
+
+            return CreatedAtAction(nameof(GetOrder), new { storeId, id = orderForReturn.Id }, orderForReturn);
         }
     }
 }
