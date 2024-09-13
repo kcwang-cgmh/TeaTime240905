@@ -8,7 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.33" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.150" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DataAccess\DbEntities\" />
   </ItemGroup>
 
 </Project>

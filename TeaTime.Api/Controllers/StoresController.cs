@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TeaTime.Api.Models;
+using TeaTime.Api.Domain.Stores;
+using TeaTime.Api.Services;
 
 namespace TeaTime.Api.Controllers
 {
@@ -8,27 +9,27 @@ namespace TeaTime.Api.Controllers
     [ApiController]
     public class StoresController : ControllerBase
     {
-        private readonly TeaTimeContext _context;
+        private readonly IStoresService _service;
 
-        public StoresController(TeaTimeContext context)
+        public StoresController(IStoresService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: api/Stores
+        // GET: api/stores
         [HttpGet]
         public ActionResult<IEnumerable<Store>> GetStores()
         {
-            var stores = _context.Stores;
+            var stores = _service.GetStores();
 
             return Ok(stores);
         }
 
-        // GET: api/Stores/1
+        // GET: api/stores/1
         [HttpGet("{id}")]
         public ActionResult<Store> GetStore(long id)
         {
-            var store = _context.Stores.Find(id);
+            var store = _service.GetStore(id);
 
             if (store is null)
             {
@@ -38,20 +39,13 @@ namespace TeaTime.Api.Controllers
             return Ok(store);
         }
 
-        // POST: api/Stores
+        // POST: api/stores
         [HttpPost]
-        public IActionResult AddStore([FromBody] Store newStore)
+        public IActionResult AddStore(StoreForCreation newStore)
         {
+            var storeForReturn = _service.AddStoreAndReturn(newStore);
 
-            var maxId = _context.Stores.Max(s => (long?)s.Id) ?? 0;
-
-
-            newStore.Id = maxId + 1;
-
-            _context.Add(newStore);
-            _context.SaveChanges();
-
-            return Ok();
+            return CreatedAtAction(nameof(GetStore), new { id = storeForReturn.Id }, storeForReturn);
         }
     }
 }
